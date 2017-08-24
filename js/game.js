@@ -30,38 +30,46 @@ function create() {
   game.physics.startSystem(Phaser.Physics.ARCADE);
   cursor = game.input.keyboard.createCursorKeys();
 
-  blocks = game.add.group();
-  createBlocks("green",24,30);
 
+  blocks = game.add.group();
+  blocks.enableBody = true;
+  blocks.physicsBodyType = Phaser.Physics.ARCADE;
+  ball = game.add.sprite(20,480,"redBall");
   platform = game.add.sprite(20,500,"mediumPlatform");
 
-  ball = game.add.sprite(20,500,"redBall");
-
-  game.physics.arcade.enable([blocks,ball,platform]);
-
-  platform.body.collideWorldBounds = true;
-  platform.body.immovable = true;
-  blocks.enableBody = true;
-
-  ball.body.velocity.setTo(200, 200);
-  ball.body.collideWorldBounds = true;
-  ball.body.bounce.setTo(1, 1);
-
+  game.physics.arcade.enable([ball,platform,blocks]);
+  initBlock();
+  initPlatform();
+  initBall();
 }
 
 function update() {
     game.physics.arcade.collide(platform,ball);
-    game.physics.arcade.collide(ball,blocks);
-  platform.body.velocity.x = 0;
-  if(cursor.left.isDown){
-    platform.body.velocity.x = -250;
-  }else if(cursor.right.isDown){
-    platform.body.velocity.x = 250;
-  }
+    game.physics.arcade.overlap(ball,blocks,destroyBlock,null,this)
+    platform.body.velocity.x = 0;
+    if(cursor.left.isDown){
+      platform.body.velocity.x = -250;
+    }else if(cursor.right.isDown){
+      platform.body.velocity.x = 250;
+    }
+}
+
+function initBlock(){
+  createBlocks("green",36,30);
+}
+
+function initPlatform(){
+  platform.body.collideWorldBounds = true;
+  platform.body.immovable = true;
+}
+
+function initBall(){
+    ball.body.velocity.setTo(200, 200);
+    ball.body.bounce.setTo(1);
+    ball.body.collideWorldBounds = true;
 }
 
 function createBlocks(color,number,startHeight,distanceBetweenRow = block.height + 2 ){
-  console.log(distanceBetweenRow);
   var height = startHeight;
   var width = 0;
   var blockPerRow = block.blockPerRow();
@@ -71,8 +79,11 @@ function createBlocks(color,number,startHeight,distanceBetweenRow = block.height
         height += distanceBetweenRow;
         width = 0;
       }
-
       blocks.create(width,height,color + "Block");
       width += (block.width + 2);
   }
+}
+
+function destroyBlock(ball,block){
+  block.kill();
 }
