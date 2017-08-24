@@ -45,7 +45,7 @@ function create() {
 
 function update() {
     game.physics.arcade.collide(platform,ball);
-    game.physics.arcade.overlap(ball,blocks,destroyBlock,null,this)
+    game.physics.arcade.collide(ball,blocks,destroyBlock,null,this)
     platform.body.velocity.x = 0;
     if(cursor.left.isDown){
       platform.body.velocity.x = -250;
@@ -79,7 +79,9 @@ function createBlocks(color,number,startHeight,distanceBetweenRow = block.height
         height += distanceBetweenRow;
         width = 0;
       }
-      blocks.create(width,height,color + "Block");
+      var b = game.add.sprite(width,height,color + "Block");
+      blocks.add(b);
+      b.body.immovable = true;
       width += (block.width + 2);
   }
 }
