@@ -11,11 +11,13 @@ var block = {
   }
 };
 
+
 var blocks;
 var platform;
 var ball;
 var game = new Phaser.Game(gameScreen.width, gameScreen.height, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 var cursor;
+
 
 
 function preload() {
@@ -34,7 +36,7 @@ function create() {
   blocks = game.add.group();
   blocks.enableBody = true;
   blocks.physicsBodyType = Phaser.Physics.ARCADE;
-  ball = game.add.sprite(20,480,"redBall");
+  ball = game.add.sprite(20,460,"redBall");
   platform = game.add.sprite(20,500,"mediumPlatform");
 
   game.physics.arcade.enable([ball,platform,blocks]);
@@ -48,14 +50,24 @@ function update() {
     game.physics.arcade.collide(ball,blocks,destroyBlock,null,this)
     platform.body.velocity.x = 0;
     if(cursor.left.isDown){
-      platform.body.velocity.x = -250;
+      platform.body.velocity.x = -450;
     }else if(cursor.right.isDown){
-      platform.body.velocity.x = 250;
+      platform.body.velocity.x = 450;
+    }
+
+    if(ball.body.blocked.down === true){
+      ball.kill();
+      console.log("You Lose");
+    }
+
+    if(blocks.countLiving() == 0){
+      console.log('hai vinto')
     }
 }
 
+
 function initBlock(){
-  createBlocks("green",36,30);
+  createBlocks("green",24,30);
 }
 
 function initPlatform(){
@@ -64,7 +76,7 @@ function initPlatform(){
 }
 
 function initBall(){
-    ball.body.velocity.setTo(200, 200);
+    ball.body.velocity.setTo(300, 300);
     ball.body.bounce.setTo(1);
     ball.body.collideWorldBounds = true;
 }
