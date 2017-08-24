@@ -12,11 +12,12 @@ var block = {
 };
 
 var blocks;
-
+var platform;
 var game = new Phaser.Game(gameScreen.width, gameScreen.height, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+var cursor;
+
 
 function preload() {
-
   game.load.image("blueBlock" , "assets/blueBlock.png");
   game.load.image("redBlock","assets/redBlock.png");
   game.load.image("greenBlock","assets/greenBlock.png");
@@ -24,16 +25,27 @@ function preload() {
 }
 
 function create() {
+  cursor = game.input.keyboard.createCursorKeys();
   game.physics.startSystem(Phaser.Physics.ARCADE);
   blocks = game.add.group();
   createBlocks("green",24,30);
   //createBlockss("red",15,98);
   //createBlocks("blue",15,130);
   //createBlocks("green",15,162);
-  game.add.sprite(20,500,"mediumPlatform")
+  platform = game.add.sprite(20,500,"mediumPlatform");
+  game.physics.arcade.enable([platform]);
+
+  platform.body.immovable = true;
 }
 
 function update() {
+
+  platform.body.velocity.x = 0;
+  if(cursor.left.isDown){
+    platform.body.velocity.x = -150;
+  }else if(cursor.right.isDown){
+    platform.body.velocity.x = 150;
+  }
 }
 
 function createBlocks(color,number,startHeight,distanceBetweenRow = block.height + 2 ){
