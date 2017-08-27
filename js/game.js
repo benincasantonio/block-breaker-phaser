@@ -42,10 +42,7 @@ function create() {
   text = game.add.text(0, 250, "Click on the screen to start the game", style);
 
   text.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
-
-  //  We'll set the bounds to be from x0, y100 and be 800px wide by 100px high
   text.setTextBounds(0, 100, 800, 100);
-
   ball = game.add.sprite(71.5,410,"redBall");
   platform = game.add.sprite(20,436,"mediumPlatform");
 
@@ -56,17 +53,21 @@ function create() {
 
 function update() {
 
-    if(game.input.activePointer.isDown && gameState == "start"){
-        text.setText("");
+    if(game.input.activePointer.isDown && gameState === "start"){
+        gameState = "started";
+        startGame();
+    }else if(game.input.activePointer.isDown && gameState === "finished"){
+        gameState = "started";
         startGame();
     }
+
     game.physics.arcade.collide(platform,ball);
     game.physics.arcade.collide(ball,blocks,destroyBlock,null,this)
     platform.body.velocity.x = 0;
 
-    if(cursor.left.isDown){
+    if(cursor.left.isDown && gameState === "started"){
       platform.body.velocity.x = -450;
-    }else if(cursor.right.isDown){
+    }else if(cursor.right.isDown && gameState === "started"){
       platform.body.velocity.x = 450;
     }
 
@@ -76,12 +77,13 @@ function update() {
       finishGame();
     }else if (blocks.countLiving() == 0){
       gameState = "finished";
-      text.setText("You Win!\n Click on the screen to restart the game!");
+      text.setText("You Win! Click on the screen to restart the game!");
       finishGame();
     }
 }
 
 function startGame(){
+  text.setText("");
   initPlatform();
   initBall();
 }
@@ -89,7 +91,13 @@ function startGame(){
 function finishGame(){
   ball.kill();
   platform.kill();
+  ball = game.add.sprite(71.5,410,"redBall");
+  platform = game.add.sprite(20,436,"mediumPlatform");
+
+  game.physics.arcade.enable([ball,platform,blocks]);
+  initBlock();
 }
+
 
 function initBlock(){
   createBlocks("green",12,100);
