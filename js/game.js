@@ -17,7 +17,8 @@ var platform;
 var ball;
 var game = new Phaser.Game(gameScreen.width, gameScreen.height, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 var cursor;
-
+var text;
+var gameState = "start";
 
 
 function preload() {
@@ -36,19 +37,33 @@ function create() {
   blocks = game.add.group();
   blocks.enableBody = true;
   blocks.physicsBodyType = Phaser.Physics.ARCADE;
-  ball = game.add.sprite(20,460,"redBall");
-  platform = game.add.sprite(20,500,"mediumPlatform");
+
+  var style = { font: "bold 32px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" };
+  text = game.add.text(0, 250, "Click on the screen to start the game", style);
+
+  text.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
+
+  //  We'll set the bounds to be from x0, y100 and be 800px wide by 100px high
+  text.setTextBounds(0, 100, 800, 100);
+
+  ball = game.add.sprite(71.5,410,"redBall");
+  platform = game.add.sprite(20,436,"mediumPlatform");
 
   game.physics.arcade.enable([ball,platform,blocks]);
   initBlock();
-  initPlatform();
-  initBall();
+
 }
 
 function update() {
+
+    if(game.input.activePointer.isDown && gameState == "start"){
+        text.setText("");
+        startGame();
+    }
     game.physics.arcade.collide(platform,ball);
     game.physics.arcade.collide(ball,blocks,destroyBlock,null,this)
     platform.body.velocity.x = 0;
+
     if(cursor.left.isDown){
       platform.body.velocity.x = -450;
     }else if(cursor.right.isDown){
@@ -56,18 +71,28 @@ function update() {
     }
 
     if(ball.body.blocked.down === true){
-      ball.kill();
-      console.log("You Lose");
-    }
-
-    if(blocks.countLiving() == 0){
-      console.log('hai vinto')
+      gameState = "finished";
+      text.setText("You Lose! Click on the screen to restart the game!");
+      finishGame();
+    }else if (blocks.countLiving() == 0){
+      gameState = "finished";
+      text.setText("You Win!\n Click on the screen to restart the game!");
+      finishGame();
     }
 }
 
+function startGame(){
+  initPlatform();
+  initBall();
+}
+
+function finishGame(){
+  ball.kill();
+  platform.kill();
+}
 
 function initBlock(){
-  createBlocks("green",24,30);
+  createBlocks("green",12,100);
 }
 
 function initPlatform(){
